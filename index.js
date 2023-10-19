@@ -5,9 +5,12 @@ var rutasUsuarios=require("./rutas/usuariosRutas");
 var rutasProductos=require("./rutas/productosRutas");
 var rutasUsuariosApis=require("./rutas/usuariosRutasApis");
 var rutasProductosApis=require("./rutas/productosRutasApis");
+//var bodyParser = require('body-parser');
+
 
 var app=express();
 app.set("view engine", "ejs");
+//app.use(bodyParser.json({ limit: '10mb' }));
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({extended:true}));

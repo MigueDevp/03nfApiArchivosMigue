@@ -1,5 +1,6 @@
 var conexion = require("./conexion").conexionUsuarios;
 var Usuario = require("../modelos/Usuario");
+var {generarPassword} = require("../middlewares/password");
 
 async function mostrarUsuarios(){
     var users=[];
@@ -22,11 +23,14 @@ async function mostrarUsuarios(){
  return users;
 
 }
-async function nuevoUsuario(newUser){
+async function nuevoUsuario(datos){
+    var {salt,hash}=generarPassword(datos.password);
+    datos.salt=salt;
+    datos.password=hash;
     var error=0
     try{
-        var usuario1=new Usuario(null,newUser);
-        console.log("Datos recibidos:", usuario1); // Agregar esta línea para depurar
+        var usuario1=new Usuario(null,datos);
+        //console.log("Datos recibidos:", usuario1);
         if(usuario1.bandera==0){
             conexion.doc().set(usuario1.obtenerUsuario);
             error=0;
@@ -41,8 +45,25 @@ async function nuevoUsuario(newUser){
     }
     return error;
  }
+ /*async function buscarPorId(id){
+    var usuario;
+    try{
+        var usuarioBD=await conexion.doc(id).get();
+        //var usuarioBD=await conexion.where("usuario","==","datos.usuario").get();
+
+        var usuarioObjeto=new Usuario(usuarioBD.id, usuarioBD.data());
+        if(usuarioObjeto.bandera==0){
+            user=usuarioObjeto.obtenerUsuario;
+        }
+    }
+    catch(err){
+        console.log("Error al recuperar el usuario (funcion buscarPorId) "+err);
+    }
+    return usuario;
+ } */
+
  async function buscarPorId(id){
-    var user;
+    var usuarioObjeto;
     try{
         var usuarioBD=await conexion.doc(id).get();
         var usuarioObjeto=new Usuario(usuarioBD.id, usuarioBD.data());
@@ -51,16 +72,27 @@ async function nuevoUsuario(newUser){
         }
     }
     catch(err){
-        console.log("Error al recuperar el usuario "+err);
+        console.log("Error al recuperar el usuario (funcion buscarPorId) "+err);
     }
-    return  user;
- } 
+    return usuarioObjeto;
+}
+
  async function modificarUsuario(datos){
     var error=1;
     var usuario=await buscarPorId(datos.id);
     if(usuario!=undefined){ 
     var usuario=new Usuario(datos.id, datos);
         if(usuario.bandera==0){
+            if(datos.password==""){
+                datos.password=datos.passwordAnterior;
+            }
+
+            else{
+                var {salt,hash}=generarPassword(datos.password);
+                datos.salt=salt;
+                datos.password=hash;
+            }
+            
             try{
                 await conexion.doc(usuario.id).set(usuario.obtenerUsuario);
                 console.log("Los datos se modificaron correctamente");
@@ -79,8 +111,8 @@ async function nuevoUsuario(newUser){
 
  async function borrarUsuario(id){
     var error=1;
-    var user=await buscarPorId(id);
-    if(user!=undefined){
+    var usuario=await buscarPorId(id);
+    if(usuario!=undefined){
         try{
             await conexion.doc(id).delete();
             console.log("Registro borrado");

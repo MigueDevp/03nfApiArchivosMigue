@@ -8,9 +8,15 @@
                 <h1>Modificar usuario</h1>
             </div>
             <div class="card-body">
-                <input class="form-control mt-3" type="text" name="nombre" id="nombre" placeholder="Nombre" value="<%= usuario.nombre %>" autofocus>
+                <input type="hidden" type="text" name="id" id="id" value="<%=usuario.id%>">
+                <input type="hidden" name="passwordAnterior" id="passwordAnterior" value="<%= usuario.password %>">
+                <input type="hidden" name="salt" id="salt" value="<%=usuario.salt%>">
+                <input type="hidden" name="fotoVieja" id="fotoVieja" value="<%=usuario.foto%>">
+                <input class="form-control mt-3" name="nombre" id="nombre" placeholder="Nombre" value="<%= usuario.nombre %>" autofocus>
                 <input class="form-control mt-3" type="text" name="usuario" id="usuario" placeholder="Usuario" value="<%= usuario.usuario %>">
-                <input class="form-control mt-3" type="text" name="password" id="password" placeholder="Password" value="<%= usuario.password %>">
+                <input class="form-control mt-3" type="text" name="password" id="password" placeholder="Password nuevo o dejarlo asi" value="<%= usuario.password %>">
+                
+                
                 <input class="form-control mb-3" type="file" name="foto" id="foto">
                 <img src="/images/<%= usuario.foto %>" width="100px" alt="Foto Actual">
             </div>

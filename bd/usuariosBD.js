@@ -1,6 +1,7 @@
 var conexion = require("./conexion").conexionUsuarios;
 var Usuario = require("../modelos/Usuario");
 var {generarPassword} = require("../middlewares/password");
+var {validarPassword} = require("../middlewares/password");
 
 async function mostrarUsuarios(){
     var users=[];
@@ -23,6 +24,28 @@ async function mostrarUsuarios(){
  return users;
 
 }
+
+async function login(datos){
+    var user;
+    var usuarioBd = await conexion.where("usuario","==",datos.usuario).get();
+    if(usuarioBd.empty){
+        console.log("usuario no existe");
+        return user;
+    }else{
+        usuarioBd.forEach((doc) => {
+            var validP = validarPassword(datos.password,doc.data().salt,doc.data().password);
+            if(validP===false){
+                console.log("PASSWORD INCORRECTO");
+                user=0; //return user;
+            }else{
+                console.log("SI SE VALIDO EL USUARIO")
+                user=1;
+            }
+        });
+    }
+    return user;
+}
+
 async function nuevoUsuario(datos){
     var {salt,hash}=generarPassword(datos.password);
     datos.salt=salt;
@@ -131,5 +154,6 @@ async function nuevoUsuario(datos){
     nuevoUsuario,
     buscarPorId,
     modificarUsuario,
-    borrarUsuario
+    borrarUsuario,
+    login
  }

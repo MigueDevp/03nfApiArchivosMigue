@@ -1,16 +1,51 @@
 var ruta = require("express").Router();
 var { validarUsuarioYContraseña } = require("../middlewares/validar");
 var subirArchivo = require("../middlewares/middlewares").subirArchivo;
-var {mostrarUsuarios, nuevoUsuario, buscarPorId, modificarUsuario, borrarUsuario} = require("../bd/usuariosBD");
+var {mostrarUsuarios, nuevoUsuario, buscarPorId, modificarUsuario, borrarUsuario,login} = require("../bd/usuariosBD");
 
-ruta.get("/", async (req, res) => {
+/*ruta.get("/", async (req, res) => {
     var users = await mostrarUsuarios();
     console.log(users);
     res.render("usuarios/mostrar", {users});
-})
+})*/
+
+ruta.get("/listaUsuarios", async (req, res) => {
+    var users = await mostrarUsuarios();
+    res.render("usuarios/mostrar", { users });
+    console.log(users);
+});
+
 ruta.get("/nuevousuario",(req,res)=>{
     res.render("usuarios/nuevo");
-}); 
+});
+ruta.get("/nuevoUsuario1",(req,res)=>{
+    res.render("usuarios/registrarse");
+});
+ruta.post("/nuevoUsuario1",subirArchivo(),async(req,res)=>{
+    req.body.foto=req.file.originalname;
+    //res.end();
+    var error=await nuevoUsuario(req.body);
+    res.redirect("/");
+});
+
+
+ruta.get("/",(req,res)=>{
+    res.render("usuarios/login");
+  });
+
+
+  ruta.post("/login", async(req,res)=>{
+    var user = await login(req.body);
+    var users = await mostrarUsuarios();
+    if(user === 1){
+        res.render("usuarios/mostrar", { users });
+    
+    }else if(user === 0){
+        res.status(400).send({ error: "Contraseña no valida" });
+    }else if(user === undefined){
+        res.status(400).send({ error: "El usuario no existe" });
+    }
+  });
 
 ruta.post("/nuevousuario",subirArchivo(),async(req,res)=>{
     req.body.foto=req.file.originalname;
@@ -18,6 +53,10 @@ ruta.post("/nuevousuario",subirArchivo(),async(req,res)=>{
     var error=await nuevoUsuario(req.body);
     res.redirect("/");
 });
+ruta.get("/mostrarUsuario",async(req,res)=>{
+    var users = await mostrarUsuarios();
+    res.render("usuario/mostrar",{users})
+  });
 
 ruta.get("/iniciarSesion", (req, res) => {
     res.render("usuarios/login");

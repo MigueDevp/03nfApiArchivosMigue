@@ -15,6 +15,8 @@ ruta1.get("/listaProductos", async (req, res) => {
      //res.end();
      res.render("productos/mostrar",{produc});
 });*/
+
+
 ruta1.get("/nuevoProducto",(req,res)=>{
      res.render("productos/nuevoPro");
 });
